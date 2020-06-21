@@ -1,0 +1,13 @@
+<h1>Список пользователей</h1>
+<form action="/users" method="get">
+    <h4>Форма поиска</h4>
+    <input type="search" value="<?=$term?>" name="term" placeholder="Username">
+    <button type="submit">Поиск</button>
+</form>
+<?php if (isset($users)):?>
+<ul>
+    <?php foreach ($users as $user):?>
+    <li><?=$user?></li>
+    <?php endforeach;?>
+</ul>
+<?php endif?>
