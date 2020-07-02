@@ -7,17 +7,22 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use DI\Container;
 
+session_start();
+
 $users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
 $container = new Container();
 $container->set('renderer', function () {
     return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
+});
+$container->set('flash', function () {
+    return new \Slim\Flash\Messages();
 });
 
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
 $app->get('/', function (Request $request, Response $response) {
-    return $response->getBody()->write('Welcome to Slim!');
+    return $response->write('Welcome to Slim!');
 });
 
 $app->get('/users', function (Request $req, Response $res) use ($users) {
@@ -43,6 +48,18 @@ $app->get('/users/{id}', function (Request $req, Response $res, $args) {
 $app->get('/courses/{id}', function (Request $req, Response $res, $args) {
     ['id' => $id] = $args;
     return $res->write("Course id: {$id}");
+});
+
+$app->get('/foo', function (Request $req, Response $res) {
+    $this->get('flash')->addMessage('success', 'This is a message');
+    
+    return $res->withRedirect('/bar');
+});
+
+$app->get('/bar', function (Request $req, Response $res) {
+    $messages = $this->get('flash')->getMessages();
+    $body = '<pre>' . print_r($messages, true) . '</pre>';
+    return $res->write($body);
 });
 
 $app->run();
